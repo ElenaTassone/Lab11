@@ -1,18 +1,22 @@
 package it.polito.tdp.bar.model;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Random;
 
 import it.polito.tdp.bar.model.Event.EventType;
+import it.polito.tdp.bar.model.Tavolo.statoTavolo;
 
 
 public class Simulator {
-
+	
+	Random rd = new Random(42) ;
+	
 	// Simulation parameters
-	private List<Tavolo> tavoli;
+	private List<Tavolo> tavoli = new ArrayList<Tavolo> ();
 		//BANCONE
-//	private int INTERVALLO_DI_ARRIVO ; 
 	 
 	
 	//World model
@@ -25,8 +29,14 @@ public class Simulator {
 	private int nClientiInsoddisfatti =0;
 	
 	// Event queue
-	PriorityQueue<Event> queue ;
+	PriorityQueue<Event> queue = new PriorityQueue<>() ;
 
+
+	public void addTable(int numPosti, int id) {
+		Tavolo temp = new Tavolo(id, numPosti);
+		tavoli.add(temp) ;
+		
+	}
 	public void addTavoli(List<Tavolo> tavoli) {
 		this.tavoli = tavoli ;
 		tavoliLiberi=tavoli.size() ;
@@ -35,14 +45,14 @@ public class Simulator {
 		}
 	
 
-	public void addEventi(Gruppo g, int time) {
+	public void addEventi(Gruppo g, long time) {
 		queue.add(new Event(g,time,EventType.ARRIVO_GRUPPI_CLIENTI)) ;
 		
 	}
 	
 	public void run() {
 		while(!queue.isEmpty()) {
-			Event e = queue.poll() ;
+			Event e = queue.remove() ;
 			
 			// process event
 			switch(e.getType()) {
@@ -54,7 +64,7 @@ public class Simulator {
 					
 					// non ho tavoli liberi o non ho posti sufficienti
 					// devo controllare la tolleranza 
-					if(this.controllaTolleranza(e.getGruppo())){
+					if(this.controllaTolleranza(e.getGruppo())==true){
 						// tolleranza ok, quindi aumento soddisfatti e clienti
 						this.nClientiSoddisfatti+= e.getGruppo().getnAmici() ;
 						
@@ -68,20 +78,32 @@ public class Simulator {
 					// fai sedere il gruppo
 					
 					// assegno il taavolo
-					e.getGruppo().setTavolo(t);
 					// e elimino il tavoo dalla lista di quelli liberi
-					this.tavoliLiberi-- ;
-					this.tavoli.remove(t) ;
-					this.nClientiSoddisfatti+= e.getGruppo().getnAmici() ;
+					
+					for(Tavolo t2 : tavoli){
+						if(t2.getIdTavolo()==t.getIdTavolo()){
+								t2.setStato(statoTavolo.OCCUPATO);
+								e.getGruppo().setTavolo(t2);
+								this.nClientiSoddisfatti+= e.getGruppo().getnAmici() ;
+								break;
+							}
+						}
 					
 					// schedulo un evento in cui il gruppo se ne va
 					queue.add(new Event(e.getGruppo(), e.getTime()+e.getGruppo().getDurata(), EventType.USCITA_GRUPPI_CLIENTI)) ;
 					}
+				
 				break ;
 			case USCITA_GRUPPI_CLIENTI:
 				// lasciano il tavolo quindi lo riaggiungo
-				this.tavoliLiberi++ ;
-				tavoli.add(e.getGruppo().getTavolo()) ;
+				//this.tavoliLiberi++ ;
+				for(Tavolo t2 : tavoli){
+					if(t2.getIdTavolo()==e.getGruppo().getTavolo().getIdTavolo()){
+						t2.setStato(statoTavolo.LIBERO);
+						break;
+					}
+				}
+				
 				
 			}
 		}
@@ -90,8 +112,8 @@ public class Simulator {
 	
 	
 	public boolean controllaTolleranza(Gruppo g ){
-		float random = (float) Math.random() ;
-		if(random<=g.getTolleranza() && g.getTolleranza()!= 0)
+		float random = rd.nextFloat();
+		if(random<=g.getTolleranza()) 
 			return true ;
 		else{
 			return false ;
@@ -100,20 +122,24 @@ public class Simulator {
 	}
 	
 	private Tavolo controllaTavoli(Gruppo g) {
-		//nohn ho tavoli libeir
-		if(this.tavoliLiberi==0 )
-			return null;
+		Tavolo ritorno = null ;
+		int tBest = 1000000000 ;
 		// ho tavoli liberi e ci entrano e quindi torno il tavolo
 		for(Tavolo t : tavoli){
-			if(t.getnPosti()>=g.getnAmici()){
-				g.setTavolo(t);
-				tavoli.remove(t);
-				return t;
+			if(t.getStato().compareTo(statoTavolo.LIBERO)==0
+					&& g.getnAmici()>=0.5*t.getnPosti()
+					&& t.getnPosti()>=g.getnAmici()){
+				if(t.getnPosti()<tBest ){
+					tBest = t.getnPosti() ;
+					ritorno = t;
+					}
+				}
 			}
-		}
-		return null ;
+				return ritorno;
+			
 	}
 
+		
 
 	public int getnTotClienti() {
 		return nTotClienti;

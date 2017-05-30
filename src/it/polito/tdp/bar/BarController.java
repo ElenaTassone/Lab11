@@ -3,6 +3,7 @@ package it.polito.tdp.bar;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.ResourceBundle;
 
 import it.polito.tdp.bar.model.Gruppo;
@@ -16,7 +17,9 @@ import javafx.scene.control.TextArea;
 public class BarController {
 	Simulator simulator  ;
 	List<Tavolo> tavoli;
-	int time = 0 ; 
+	long time = 0 ; 
+	int idtavolo=0;
+	Random rn = new Random(42);
 
     @FXML
     private ResourceBundle resources;
@@ -34,33 +37,61 @@ public class BarController {
     void doSimula(ActionEvent event) {
     	simulator = new Simulator() ; 
     	tavoli= new ArrayList<Tavolo> ();
-    	for(int i=0 ; i<2 ;  i++){
-    		Tavolo t = new Tavolo(10);
-    		tavoli.add(t) ;
-    	}
-    	for(int i=0 ; i<4 ;  i++){
-    		Tavolo t = new Tavolo(8);
-    		tavoli.add(t) ;
-    	}
-    	for(int i=0 ; i<4 ;  i++){
-    		Tavolo t = new Tavolo(6);
-    		tavoli.add(t) ;
-    	}
-    	for(int i=0 ; i<5 ;  i++){
-    		Tavolo t = new Tavolo(4);
-    		tavoli.add(t) ;
-    	}
-    	simulator.addTavoli(tavoli);
+    	
+//    	for(int i=0 ; i<2 ;  i++){
+//    		idtavolo++;
+//    		Tavolo t = new Tavolo(idtavolo,10);
+//    		tavoli.add(t) ;
+//    	}
+//    	for(int i=0 ; i<4 ;  i++){
+//    		idtavolo++;
+//    		Tavolo t = new Tavolo(idtavolo,8);
+//    		tavoli.add(t) ;
+//    	}
+//    	for(int i=0 ; i<4 ;  i++){
+//    		idtavolo++;
+//    		Tavolo t = new Tavolo(idtavolo,6);
+//    		tavoli.add(t) ;
+//    	}
+//    	for(int i=0 ; i<5 ;  i++){
+//    		idtavolo++;
+//    		Tavolo t = new Tavolo(idtavolo,4);
+//    		tavoli.add(t) ;
+//    	}
+//    	simulator.addTable(numPosti, id);
+    	idtavolo++;
+
+    	simulator.addTable(10, idtavolo++);
+    	simulator.addTable(10,idtavolo++);
+
+    	simulator.addTable(8,idtavolo++);
+    	simulator.addTable(8,idtavolo++);
+    	simulator.addTable(8,idtavolo++);
+    	simulator.addTable(8,idtavolo++);
+
+    	simulator.addTable(6,idtavolo++);
+    	simulator.addTable(6,idtavolo++);
+    	simulator.addTable(6,idtavolo++);
+    	simulator.addTable(6,idtavolo++);
+
+    	simulator.addTable(4,idtavolo++);
+    	simulator.addTable(4,idtavolo++);
+    	simulator.addTable(4,idtavolo++);
+    	simulator.addTable(4,idtavolo++);
+    	simulator.addTable(4,idtavolo++);
+
+    	//simulator.addTavoli(tavoli);
+    	long lastTimeOfArrival = 0;
     	
     	for (int i = 0 ; i <2000; i++){
-    		time = time + (int) (1+Math.random()*10);
-    		int n = (int) (1+Math.random()*10);
-    		Gruppo g = new Gruppo (n);
+    		time = lastTimeOfArrival + 1 + rn.nextInt(9);
+    		int n = 1 + rn.nextInt(9);
+    		Gruppo g = new Gruppo (n, rn.nextFloat());
     		simulator.addEventi(g, time);
     	}
     	simulator.run();
-    	txtResult.setText("Statistica: tot clienti"+simulator.getnTotClienti()+", tot soddisfatti "
-    			+simulator.getnClientiSoddisfatti()+" tot insoddisfatti"+simulator.getnClientiInsoddisfatti()) ;
+    	txtResult.setText("Statistica: tot clienti"+simulator.getnTotClienti()+", \n tot soddisfatti "
+    			+simulator.getnClientiSoddisfatti()+"\n tot insoddisfatti"+simulator.getnClientiInsoddisfatti()) ;
 	
     	
     }

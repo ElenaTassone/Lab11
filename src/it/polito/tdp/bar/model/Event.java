@@ -10,12 +10,12 @@ public class Event implements Comparable<Event> {
 	}
 	
 	private Gruppo gruppo ;
-	private int time ; //intervallo in cui si verifica l'evento (1-10)
+	private long time ; //intervallo in cui si verifica l'evento (1-10)
 	private EventType type ;
 
 	
 
-	public Event(Gruppo g, int time, EventType type) {
+	public Event(Gruppo g, long time, EventType type) {
 		super();
 		this.gruppo = g ;
 		this.time = time;
@@ -46,14 +46,15 @@ public class Event implements Comparable<Event> {
 
 	@Override
 	public int compareTo(Event altro) {
-		return this.time-altro.time;
-	};
+		return Long.compare(this.getTime(), altro.getTime());
+	}
+	
 	public EventType getType() {
 		return type;
 	}
 
 
-	public int getTime() {
+	public long getTime() {
 		return time;
 	}
 

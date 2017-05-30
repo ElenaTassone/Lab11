@@ -1,20 +1,21 @@
 package it.polito.tdp.bar.model;
 
+import java.util.Random;
+
 public class Gruppo {
 
 	private int nAmici ; 
-	private int durata ;
+	private long durata ;
 	private float tolleranza ;
 	private Tavolo  tavolo ; 
 	
-	public Gruppo(int nAmici ) {
+	
+	public Gruppo(int nAmici, float t ) {
 		super();
 		this.nAmici = nAmici;
-		this.durata = (int) (60+Math.random()*61) ;
-		this.tolleranza = (float) Math.random() ;
-			if(tolleranza>0.90)
-				tolleranza = (float) 0.90 ; 
-		
+		this.durata = (long) (60 + Math.random() * 60);
+		this.tolleranza = t;
+
 	}
 
 	public int getnAmici() {
@@ -36,7 +37,7 @@ public class Gruppo {
 		this.tavolo = t;
 	}
 
-	public int getDurata() {
+	public long getDurata() {
 		return durata;
 	}
 
